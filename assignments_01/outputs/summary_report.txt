@@ -1,0 +1,5 @@
+REPORT: The dataset covers 175 unique countries over 10 years.
+REPORT: Top 3 Happiest Regions: North America and ANZ, Western Europe, Latin America and Caribbean
+REPORT: Bottom 3 Regions: Middle East and North Africa, South Asia, Sub-Saharan Africa
+REPORT: Regarding the 2019-2020 transition, global happiness scores remained stable (p=0.5953)
+REPORT: 'Social Support' is the strongest predictor of happiness (Correlation: 0.744).
