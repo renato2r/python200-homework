@@ -161,14 +161,16 @@ print(classification_report(y_test, y_pred_dt))
 # --- Logistic Regression and Regularization ---
 
 # Q1
+# Q1
 
 # Comparing models with different regularization strengths (C parameter)
 c_values = [0.01, 1.0, 100]
 
 print("\nLogistic Regression Q1: Impact of C on Coefficients")
 for c in c_values:
-    # Trocamos 'liblinear' por 'lbfgs' para suportar as 3 classes do Iris
-    log_reg = LogisticRegression(C=c, max_iter=1000, solver='lbfgs')
+    # Changed solver from 'lbfgs' to 'liblinear' as explicitly instructed by the professor.
+    # Note: 'liblinear' handles multiclass classification using a One-vs-Rest (OvR) approach.
+    log_reg = LogisticRegression(C=c, max_iter=1000, solver='liblinear')
     log_reg.fit(X_train_scaled, y_train)
     
     coef_sum = np.abs(log_reg.coef_).sum()
@@ -206,10 +208,6 @@ for i in range(10):
 plt.tight_layout()
 os.makedirs('outputs', exist_ok=True)
 plt.savefig('outputs/sample_digits.png')
-
-# Comment: This visualization confirms the data structure. Each digit is represented 
-# by an 8x8 grid of pixels. The PCA's job will be to project these 64 individual 
-# pixel values into a lower-dimensional space while preserving as much info as possible.
 
 # 2
 # Fitting PCA without specifying n_components defaults to min(n_samples, n_features)
