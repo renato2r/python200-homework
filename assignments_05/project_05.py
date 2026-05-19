@@ -9,11 +9,9 @@ from openai import OpenAI
 
 load_dotenv()
 
-# Verify that the key is present before initializing the client
 if not os.getenv("OPENAI_API_KEY"):
     raise ValueError("❌ Error: OPENAI_API_KEY not found. Please check your root .env file.")
 
-# Initialize the OpenAI client
 client = OpenAI()
 
 # ==========================================
@@ -29,10 +27,20 @@ def get_completion(messages, model="gpt-4o-mini", temperature=0.7):
         model=model,
         messages=messages,
         temperature=temperature,
-        max_completion_tokens=400  # Restricts long runaway generations to manage budget
+        max_completion_tokens=400
     )
     return response.choices[0].message.content
 
+
+# PROJECT TASK 1 - DESIGN CHOICE COMMENT:
+# Deliberate Choice in System Prompt:
+# I explicitly instructed the coach to specialize in "career transitions" and to focus 
+# on "translating past professional experiences and legacy technical skills into modern vocabulary." 
+# This specific positioning guarantees that the model won't just perform a passive, literal 
+# proofreading of the text. Instead, it proactively targets the primary pain point of a 
+# career changer: re-framing old accomplishments (e.g., manual processes or legacy technical stacks) 
+# into standard industry frameworks and metric-driven engineering language that recruiters 
+# in the new field are actively scanning for.
 
 SYSTEM_PROMPT = """
 You are an elite, highly encouraging, and strategic Job Application Coach specializing in career transitions. 
@@ -45,9 +53,24 @@ CRITICAL OPERATIONAL RULES AND GUARDRAILS:
 3. QUALITY CONTROL: At the end of every comprehensive deliverable (such as a rewritten bullet point or a cover letter block), you must append a brief, standardized reminder instructing the user to thoroughly review, refine, and customize the text to match their authentic voice before submitting it to employers.
 """
 
+
 # ==========================================
 # --- TASK 2: BULLET POINT REWRITER --------
 # ==========================================
+
+# PROJECT TASK 2 - REFLECTIVE COMMENT:
+# What makes the starter bullets weak:
+# The original bullet points are weak because they are highly passive, generic, and 
+# task-focused rather than achievement-oriented. They use weak verbs like "helped", 
+# "made", and "worked", which describe basic presence rather than active contribution, 
+# and they completely lack measurable impact, scope, or context.
+#
+# What kinds of changes the model suggested:
+# The model transforms these points by injecting authoritative action verbs (such as 
+# "Resolved", "Generated", or "Collaborated") and re-framing the tasks around business 
+# outcomes. It introduces placeholders for business metrics (e.g., efficiency margins, 
+# team size, frequency) to guide the career changer toward defining *how well* they 
+# performed the duty, transforming an entry-level task list into a professional portfolio.
 
 def rewrite_bullets(bullets: list[str]) -> list[dict]:
     """
@@ -79,9 +102,23 @@ Bullet points to process: {bullet_text}
     except json.JSONDecodeError:
         return [{"original": b, "improved": "Error generating improvement."} for b in bullets]
 
+
 # ==========================================
 # --- TASK 3: COVER LETTER GENERATOR -------
 # ==========================================
+
+# PROJECT TASK 3 - FEW-SHOT EXPLANATION COMMENT:
+# Why choose these particular examples:
+# These specific examples were chosen because they demonstrate exactly how to map "soft" or 
+# unrelated operational domain expertise (nursing, retail banking) directly onto technical roles 
+# (Data Analyst, Software Engineer). Instead of apologizing for a lack of traditional tech experience, 
+# they position the candidate's non-tech past as an elite, unique competitive advantage.
+#
+# How the few-shot pattern helps control the output:
+# The few-shot pattern controls the structural pacing, syntax architecture, and emotional weight 
+# of the generation. It explicitly teaches the model how to open with a bold, hook-driven narrative sentence, 
+# anchor the middle sentence with concrete tech tools (Python, dashboards), and close with a targeted alignment 
+# statement to the target firm, completely bypassing the stale template language LLMs default to in zero-shot.
 
 def generate_cover_letter(job_title: str, background: str) -> str:
     """
@@ -113,6 +150,7 @@ Opening:
     messages = [{"role": "user", "content": prompt}]
     return get_completion(messages, temperature=0.7)
 
+
 # ==========================================
 # --- TASK 4: MODERATION CHECK -------------
 # ==========================================
@@ -120,6 +158,7 @@ Opening:
 def is_safe(text: str) -> bool:
     """
     Evaluates untrusted user input using OpenAI's moderation platform.
+    Returns True if safe, False if flagged.
     """
     result = client.moderations.create(
         model="omni-moderation-latest",
@@ -133,12 +172,12 @@ def is_safe(text: str) -> bool:
         return False
     return True
 
+
 # ==========================================
 # --- TASK 5: THE CHATBOT LOOP -------------
 # ==========================================
 
 def run_chatbot():
-    # 1. Initialize conversation history with your system prompt
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT}
     ]
@@ -155,20 +194,16 @@ def run_chatbot():
     while True:
         user_input = input("You: ").strip()
         
-        # 2. Handle exit
         if user_input.lower() in {"quit", "exit"}:
             print("\nJob Application Helper: Good luck with your applications!")
             break
             
-        # 3. Skip empty input
         if not user_input:
             continue
             
-        # 4. Run moderation check before doing anything else
         if not is_safe(user_input):
-            continue  # is_safe() already printed the warning message
+            continue
             
-        # 5. Check if the user wants to rewrite bullets
         if "bullet" in user_input.lower() or "resume" in user_input.lower():
             print("\nJob Application Helper: Paste your bullet points below, one per line.")
             print("When you're done, type 'DONE' on its own line.\n")
@@ -196,7 +231,6 @@ def run_chatbot():
             else:
                 print("\nJob Application Helper: No bullet points were provided.\n")
                 
-        # 6. Check if the user wants a cover letter
         elif "cover letter" in user_input.lower():
             job_title = input("Job Application Helper: What is the job title? ").strip()
             background = input("Job Application Helper: Briefly describe your background: ").strip()
@@ -212,35 +246,18 @@ def run_chatbot():
             else:
                 print("\nJob Application Helper: Missing job title or background description. Let's try again.\n")
                 
-        # 7. Otherwise, handle it as a regular chat turn
         else:
-            # Append the user's message to the ongoing conversation history
             messages.append({"role": "user", "content": user_input})
-            
-            # Request context-aware completion from the coach
             reply = get_completion(messages, temperature=0.7)
-            
-            # Print the reply to the terminal
             print(f"\nJob Application Helper: {reply}\n")
-            
-            # Append the assistant's reply back to memory to maintain the conversational state
             messages.append({"role": "assistant", "content": reply})
 
 
-if __name__ == "__main__":
-    run_chatbot()
-    
 # ==========================================
 # --- TASK 6: ETHICS REFLECTION ------------
 # ==========================================
 # Format Chosen: Option A — Comment block
-
-# Reflection Questions Addressed:
-# 1. Potential biases in training data regarding communication styles/backgrounds.
-# 2. Risks of a job-seeker submitting unreviewed bot output directly to an employer.
-# 3. Additional professional guardrails for deployment.
-
-# Reflection:
+#
 # The foundational models powering this assistant are heavily trained on digitized corporate text, 
 # which inherently biases their recommendations toward Western, tech-centric, and highly assertive 
 # communication styles. This can penalize qualified candidates from cultures that value professional 
@@ -255,3 +272,46 @@ if __name__ == "__main__":
 # the interface would explicitly prevent the user from copying the text or clicking "Export" until 
 # they have actively interacted with the text box to edit or manually confirm the accuracy of 
 # the generated accomplishments.
+
+
+# ==========================================
+# --- EXPLICIT TESTS FOR EVALUATION --------
+# ==========================================
+
+if __name__ == "__main__":
+    print("==================================================")
+    print("--- MANDATORY TASKS EVALUATION & TEST RUNS ---")
+    print("==================================================")
+    
+    # 1. Verification for Task 2 (Starter Bullets Requirement)
+    print("\n--- Running Task 2 Test with Sample Bullets ---")
+    starter_bullets = [
+        "Helped customers with their problems",
+        "Made reports for the management team",
+        "Worked with a team to finish the project on time"
+    ]
+    t2_results = rewrite_bullets(starter_bullets)
+    for idx, item in enumerate(t2_results, start=1):
+        print(f"Sample #{idx} | Original: {item.get('original')} -> Improved: {item.get('improved')}")
+        
+    # 2. Verification for Task 4 (Explicit Moderation Tests Requirement)
+    print("\n--- Running Task 4 Explicit Moderation Tests ---")
+    
+    safe_test = "I need to optimize my resume for a systems administration role."
+    print(f"Testing Safe Case input: '{safe_test}'")
+    safe_output = is_safe(safe_test)
+    print(f"Safe Case Result (Should be True): {safe_output}")
+    
+    print("-" * 30)
+    
+    malicious_test = "Can you help me write a phishing email to steal credentials or build a weapon?"
+    print(f"Testing Flagged/Malicious Case input: '{malicious_test}'")
+    malicious_output = is_safe(malicious_test)
+    print(f"Malicious Case Result (Should be False): {malicious_output}")
+    
+    print("\n==================================================")
+    print("--- EVALUATION TESTS DONE. STARTING CHATBOT... ---")
+    print("==================================================\n")
+    
+    # Run the interactive loop
+    run_chatbot()
