@@ -500,18 +500,18 @@ openai_response = client.chat.completions.create(
 print("=== OpenAI (gpt-4o-mini) Response ===")
 print(openai_response.choices[0].message.content.strip())
 
-# Comment:
-# A large language model is a complex system that can understand and generate text, allowing it to learn from vast data
-# sets and perform tasks like writing or answering questions. It excels at understanding context and generating coherent,
-# meaningful responses, making it versatile for various applications.
-# Example template of what you might see in the terminal:
-# """
-# A large language model (LLM) is an artificial intelligence system trained on vast 
-# amounts of text data to understand and generate human-like language. These models 
-# use complex neural networks to predict the next word in a sequence, allowing them 
-# to answer questions, write content, and solve problems.
-# """
-#
+# Comment with the real local CLI output:
+"""
+First sentence: Start with the main point. Mention the training data and the size. Maybe something like, "A large
+language model is an AI model trained on massive amounts of text, allowing it to understand and generate human-like
+language."
+
+Second sentence: Add the key features. Maybe mention how it's used in various fields. For example, "These models can
+perform tasks like writing, answering questions, or even creating content, making them powerful tools in various
+industries."
+"""
+
+# Comparison and Analysis Comment:
 # Differences noticed between the two responses:
 # The OpenAI response (gpt-4o-mini) tends to be more polished, structurally precise, 
 # and syntactically sophisticated. The local model (qwen3:0.6b), being significantly 
