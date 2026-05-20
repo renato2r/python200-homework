@@ -502,13 +502,8 @@ print(openai_response.choices[0].message.content.strip())
 
 # Comment with the real local CLI output:
 """
-First sentence: Start with the main point. Mention the training data and the size. Maybe something like, "A large
-language model is an AI model trained on massive amounts of text, allowing it to understand and generate human-like
-language."
-
-Second sentence: Add the key features. Maybe mention how it's used in various fields. For example, "These models can
-perform tasks like writing, answering questions, or even creating content, making them powerful tools in various
-industries."
+An AI model trained on vast amounts of text that can understand and generate human language. A model capable of
+understanding and generating human language.
 """
 
 # Comparison and Analysis Comment:
