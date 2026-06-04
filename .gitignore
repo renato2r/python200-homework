@@ -1,0 +1,3 @@
+# --- Git Ignore Configuration ---
+# Ignore environment files to prevent leaking secrets
+.env
