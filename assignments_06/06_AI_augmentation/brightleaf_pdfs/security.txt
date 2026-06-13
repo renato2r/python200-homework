@@ -1,0 +1,12 @@
+﻿BrightLeaf Solar Corporate Security and Information Protection Policy
+
+Data Protection:
+- All company data must be treated as confidential. Customer financial details and solar design schematics must never be shared externally without legal approval.
+
+Password & Authentication Rules:
+- Passwords for all internal systems must be a minimum of 12 characters, including uppercase letters, numbers, and special characters.
+- Multi-Factor Authentication (MFA) is strictly mandatory for accessing Google Workspace, AWS, and company CRM tools.
+
+Device Compliance:
+- Work laptops must have active firewall protection and automated software updates enabled.
+- Screens must lock automatically after 5 minutes of inactivity to prevent physical building unauthorized access.
