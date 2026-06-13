@@ -93,10 +93,11 @@ def enrich_weather_with_llm(openai_client: OpenAI, reshaped_records: list[dict])
     
     :param openai_client: Instantiated OpenAI API client object.
     :param reshaped_records: List of record dictionaries from Step 1.
-    :return: A new list containing the first 24 records enriched with a 'running_condition' key.
+    :return: A new list containing the first 24 records enriched with a 'conditions' key.
     """
     print("Initiating LLM Classification for outdoor running conditions...")
     
+    # Exact system prompt requested by the mentor guidelines
     SYSTEM_PROMPT = (
         "You are classifying hourly weather conditions for outdoor running. "
         "Given a temperature in Celsius and a precipitation amount in mm, "
@@ -116,7 +117,7 @@ def enrich_weather_with_llm(openai_client: OpenAI, reshaped_records: list[dict])
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_message}
+                    {"role": "user", "content":user_message}
                 ],
                 temperature=0.0
             )
@@ -132,7 +133,8 @@ def enrich_weather_with_llm(openai_client: OpenAI, reshaped_records: list[dict])
             classification = "unknown"
             
         enriched_record = record.copy()
-        enriched_record["running_condition"] = classification
+        # Changed key from 'running_condition' to 'conditions' as requested by mentor
+        enriched_record["conditions"] = classification
         enriched_records.append(enriched_record)
         
         if (index + 1) % 6 == 0:
@@ -191,11 +193,12 @@ def spot_check_processed_data(container_client: ContainerClient, blob_path: str)
     print("         FINAL PIPELINE SPOT-CHECK METRICS")
     print("="*50)
     
+    # Updated column references to target "conditions"
     print("\n--- Value Counts for Running Conditions ---")
-    if "running_condition" in df.columns:
-        print(df["running_condition"].value_counts())
+    if "conditions" in df.columns:
+        print(df["conditions"].value_counts())
     else:
-        print("[Warning] Classification column not found.")
+        print("[Warning] 'conditions' column not found in DataFrame.")
         
     print("\n--- First 5 Rows of Processed DataFrame ---")
     print(df.head(5))
@@ -239,6 +242,7 @@ if __name__ == "__main__":
         os.makedirs(output_dir, exist_ok=True)
         local_mentor_file = os.path.join(output_dir, "first_10_records.json")
         
+        # Slice only the first 10 records for your mentor
         mentor_sample_slice = enriched_results[:10]
         
         with open(local_mentor_file, "w", encoding="utf-8") as f:
